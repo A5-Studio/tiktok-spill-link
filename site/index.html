@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <title>Buka Link dari Video</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card">
+    <h1 data-i18n="title">Buka Link dari Video</h1>
+    <p class="sub" data-i18n="subtitle"></p>
+
+    <form id="form" novalidate>
+      <div class="row">
+        <input id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" data-i18n-placeholder="placeholder">
+        <button id="paste" type="button" class="secondary" data-i18n="paste">Tempel</button>
+      </div>
+      <button id="submit" type="submit" class="primary" data-i18n="submit">Tampilkan Link</button>
+    </form>
+
+    <p id="error" class="error" role="alert" hidden></p>
+
+    <section id="result" class="result" hidden aria-live="polite">
+      <p class="label" data-i18n="resultLabel"></p>
+      <a id="reveal" class="reveal" target="_blank" rel="noopener noreferrer"></a>
+      <div class="row">
+        <a id="open" class="secondary btn" target="_blank" rel="noopener noreferrer" data-i18n="open">Buka</a>
+        <button id="copy" type="button" class="primary" data-i18n="copy">Salin</button>
+      </div>
+
+      <div id="premium" class="premium" hidden>
+        <p class="label" data-i18n="premiumLabel"></p>
+        <code id="code"></code>
+        <button id="copyCode" type="button" class="secondary" data-i18n="copy">Salin</button>
+      </div>
+      <p id="premiumHint" class="hint" data-i18n="premiumHint" hidden></p>
+    </section>
+
+    <a id="lang" class="lang" href="?lang=en"></a>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
