@@ -1,19 +1,14 @@
 [
   {
-    "video": "https://www.tiktok.com/@ngurahmayun_code/video/7695714861950471444",
-    "reveal_url": "https://example.com/placeholder-link-1",
-    "premium_code": "PREMIUM-DEMO-1",
+    "video": "https://www.tiktok.com/@faqihpedia/video/7691671300992929032",
+    "reveal_url": "https://www.tiktok.com/@faqihpedia",
+    "premium_code": "",
     "active": true
   },
   {
     "video": "7000000000000000002",
     "reveal_url": "https://example.com/placeholder-link-2",
-    "premium_code": "",
-    "active": true
-  },
-  {
-    "video": "7000000000000000003",
-    "reveal_url": "https://example.com/placeholder-link-3",
+    "premium_code": "PREMIUM-DEMO-2",
     "active": false
   }
 ]
