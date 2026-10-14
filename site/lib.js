@@ -25,7 +25,7 @@ export function parseInput(raw) {
   }
   if (LONG_HOSTS.includes(host)) {
     const videoId = videoIdFromPath(url.pathname);
-    return videoId ? { kind: 'long', videoId } : { kind: 'invalid' };
+    return videoId ? { kind: 'long', videoId, url: `https://www.tiktok.com${url.pathname}` } : { kind: 'invalid' };
   }
   return { kind: 'not_tiktok' };
 }
@@ -33,6 +33,18 @@ export function parseInput(raw) {
 export function videoIdFromPath(path) {
   const m = String(path).match(/\/video\/(\d{8,25})/);
   return m ? m[1] : null;
+}
+
+// oEmbed response -> preview shown above the result. Only https images.
+export function previewFromOembed(data) {
+  if (!data || typeof data !== 'object') return null;
+  const image = String(data.thumbnail_url || '');
+  if (!/^https:\/\//.test(image)) return null;
+  return {
+    image,
+    title: String(data.title || ''),
+    author: String(data.author_unique_id || data.author_name || ''),
+  };
 }
 
 // oEmbed response -> video ID.

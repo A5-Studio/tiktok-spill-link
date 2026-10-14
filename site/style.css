@@ -89,6 +89,32 @@ button:disabled { opacity: .6; cursor: progress; }
   border-radius: 12px;
   background: var(--soft);
 }
+.preview {
+  margin: 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--soft);
+}
+.preview img {
+  width: 72px;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--border);
+  flex: none;
+}
+.preview figcaption { display: grid; gap: 4px; min-width: 0; }
+.vtitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: .9rem;
+}
+.vauthor { color: var(--muted); font-size: .85rem; }
 .reveal { color: var(--accent); font-weight: 600; word-break: break-all; }
 .premium { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
 code {

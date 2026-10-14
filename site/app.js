@@ -1,4 +1,4 @@
-import { parseInput, videoIdFromOembed, indexKey, decryptRow } from './lib.js';
+import { parseInput, videoIdFromOembed, previewFromOembed, indexKey, decryptRow } from './lib.js';
 import { STRINGS, pickLang } from './i18n.js';
 
 const lang = pickLang();
@@ -26,6 +26,7 @@ function loadTable() {
 // --- UI helpers -------------------------------------------------------------
 function showError(key) {
   $('result').hidden = true;
+  if (key !== 'errNoLink') $('preview').hidden = true;
   $('error').textContent = t[key];
   $('error').hidden = false;
 }
@@ -50,23 +51,43 @@ async function copyText(text, button) {
 let lastSubmit = 0;
 
 // --- flow -------------------------------------------------------------------
-async function resolveVideoId(parsed) {
-  if (parsed.kind === 'long') return parsed.videoId;
-  // TikTok's oEmbed endpoint follows the short link server-side and allows
-  // browser CORS, so no backend is needed to expand vt./vm. links.
+// TikTok's oEmbed endpoint follows short links server-side and allows browser
+// CORS, so no backend is needed. It also gives the thumbnail for the preview.
+async function fetchOembed(url) {
   let res;
   try {
-    res = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(parsed.url), { referrerPolicy: 'no-referrer' });
+    res = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(url), { referrerPolicy: 'no-referrer' });
   } catch {
     // TikTok's error responses carry no CORS header, so a dead short link
     // surfaces as a fetch failure. Only blame the network when offline.
     throw navigator.onLine === false ? 'errNetwork' : 'errExpired';
   }
   if (!res.ok) throw 'errExpired';
-  const data = await res.json().catch(() => null);
-  const id = videoIdFromOembed(data);
-  if (!id) throw 'errExpired';
-  return id;
+  return res.json().catch(() => null);
+}
+
+// -> { videoId, preview }. A full video link already holds the ID, so a failed
+// preview lookup must not block the reveal.
+async function resolveVideo(parsed) {
+  if (parsed.kind === 'long') {
+    const data = await fetchOembed(parsed.url).catch(() => null);
+    return { videoId: parsed.videoId, preview: previewFromOembed(data) };
+  }
+  const data = await fetchOembed(parsed.url);
+  const videoId = videoIdFromOembed(data);
+  if (!videoId) throw 'errExpired';
+  return { videoId, preview: previewFromOembed(data) };
+}
+
+function renderPreview(preview) {
+  $('preview').hidden = !preview;
+  if (!preview) return;
+  // Signed CDN links can expire; drop the image rather than show a broken one.
+  $('thumb').hidden = false;
+  $('thumb').onerror = () => ($('thumb').hidden = true);
+  $('thumb').src = preview.image;
+  $('vtitle').textContent = preview.title;
+  $('vauthor').textContent = preview.author ? '@' + preview.author : '';
 }
 
 async function reveal(raw) {
@@ -80,10 +101,12 @@ async function reveal(raw) {
   const now = Date.now();
   if (now - lastSubmit < 1500) return;
   lastSubmit = now;
+  $('preview').hidden = true;
 
   busy(true);
   try {
-    const [videoId, table] = await Promise.all([resolveVideoId(parsed), loadTable().catch(() => { throw 'errNetwork'; })]);
+    const [{ videoId, preview }, table] = await Promise.all([resolveVideo(parsed), loadTable().catch(() => { throw 'errNetwork'; })]);
+    renderPreview(preview);
     const row = table.rows[await indexKey(videoId)];
     if (!row) throw 'errNoLink';
     const entry = await decryptRow(videoId, row);
